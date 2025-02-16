@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>로그인</title>
+    <link rel="stylesheet" href="../styles/auth.css" />
+  </head>
+  <body>
+    <div class="login-container">
+      <h1>로그인</h1>
+
+      <form class="login-form">
+        <!-- 이메일 입력 -->
+        <div class="input-group">
+          <label for="email">이메일</label>
+          <input type="email" id="email" placeholder="이메일을 입력하세요" />
+          <p class="helper-text email-error"></p>
+        </div>
+
+        <!-- 비밀번호 입력 -->
+        <div class="input-group">
+          <label for="password">비밀번호</label>
+          <input
+            type="password"
+            id="password"
+            placeholder="비밀번호를 입력하세요"
+          />
+          <p class="helper-text password-error"></p>
+        </div>
+
+        <!-- 로그인 버튼 -->
+        <button type="button" id="login-btn" disabled>로그인</button>
+
+        <!-- 로그인 실패 메시지 -->
+        <p class="helper-text login-error"></p>
+
+        <!-- 회원가입 링크 -->
+        <p class="signup-link">
+          <a href="#" id="signup-btn">회원가입</a>
+        </p>
+      </form>
+    </div>
+
+    <script src="../scripts/login.js"></script>
+  </body>
+</html>
