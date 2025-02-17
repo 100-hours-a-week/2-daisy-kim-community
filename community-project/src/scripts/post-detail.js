@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const deleteModal = document.getElementById("delete-modal");
   const confirmDelete = document.getElementById("confirm-delete");
   const cancelDelete = document.getElementById("cancel-delete");
+  const editBtn = document.getElementById("edit-btn");
 
   let editingCommentIndex = null; // 수정 중인 댓글의 인덱스
 
@@ -52,6 +53,14 @@ document.addEventListener("DOMContentLoaded", () => {
       postImage.style.display = "block";
     }
   }
+
+  // 수정 버튼 클릭 시 `post-edit.html`로 이동
+  editBtn.addEventListener("click", () => {
+    if (postData) {
+      localStorage.setItem("editPostData", JSON.stringify(postData));
+      window.location.href = "post-edit.html";
+    }
+  });
 
   // 숫자 단위 변환 함수 (1k, 10k, 100k)
   function formatNumber(num) {
