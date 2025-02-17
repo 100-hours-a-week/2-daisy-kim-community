@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 더미 게시글 데이터
-  const dummyPosts = Array.from({ length: 30 }).map((_, i) => ({
+  let dummyPosts = Array.from({ length: 30 }).map((_, i) => ({
     id: i + 1,
     title: `제목 ${i + 1}`.slice(0, 26), // 제목 길이 제한
     likes: Math.floor(Math.random() * 2000),
@@ -32,23 +32,32 @@ document.addEventListener("DOMContentLoaded", () => {
     image: "../assets/images/default-profile.jpeg",
   }));
 
-  // 저장된 게시글이 있으면 최상단에 추가
+  // 저장된 게시글이 있으면 최상단에 추가 & 최신 좋아요, 댓글, 조회수 반영
   const storedPost = getStoredPost();
   if (storedPost) {
-    dummyPosts.unshift({
+    let updatedPost = {
       id: 0,
       title: storedPost.title,
-      likes: 0,
-      comments: 0,
-      views: 0,
-      author: "익명",
+      likes: storedPost.likes || 0,
+      comments: storedPost.comments?.length || 0,
+      views: storedPost.views || 0,
+      author: storedPost.author || "익명",
       date: storedPost.date,
-      image: storedPost.image,
-    });
+      image: storedPost.image || "../assets/images/default-profile.jpeg",
+    };
+
+    // 기존 목록에서 해당 게시글 업데이트
+    let existingPostIndex = dummyPosts.findIndex((post) => post.id === 0);
+    if (existingPostIndex !== -1) {
+      dummyPosts[existingPostIndex] = updatedPost;
+    } else {
+      dummyPosts.unshift(updatedPost);
+    }
   }
 
   // 게시글 렌더링 함수
   function renderPosts(posts) {
+    postList.innerHTML = ""; // 기존 목록 초기화
     posts.forEach((post) => {
       const postElement = document.createElement("div");
       postElement.classList.add("post-card");
@@ -77,16 +86,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // 초기 렌더링 (최신 데이터 반영)
+  renderPosts(dummyPosts);
+
   // 인피니트 스크롤 구현
   window.addEventListener("scroll", () => {
     if (
       window.innerHeight + window.scrollY >=
       document.body.offsetHeight - 100
     ) {
-      renderPosts(dummyPosts.slice(0, 5)); // 추가 로드
+      renderPosts(dummyPosts.slice(0, 5));
     }
   });
-
-  // 초기 렌더링
-  renderPosts(dummyPosts.slice(0, 10));
 });
