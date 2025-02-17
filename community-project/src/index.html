@@ -4,12 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Redirecting...</title>
-    <meta http-equiv="refresh" content="0; url=layout.html" />
   </head>
   <body>
     <p>자동으로 로그인 페이지로 이동 중...</p>
     <script>
-      window.location.href = "layout.html";
+      const urlParams = new URLSearchParams(window.location.search);
+      const page = urlParams.get("page");
+
+      // 기본적으로 로그인 페이지로 이동
+      let targetPage = "pages/login.html";
+
+      // page 파라미터가 'signup'이면 회원가입 페이지로 이동
+      if (page === "signup") {
+        targetPage = "pages/signup.html";
+      }
+
+      window.location.href = targetPage;
     </script>
   </body>
 </html>
