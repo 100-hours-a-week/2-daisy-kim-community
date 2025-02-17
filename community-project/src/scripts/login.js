@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
       emailError.classList.add("show");
     } else if (!emailValid) {
       emailError.textContent =
-        "* 올바른 이메일 주소 형식을 입력해주세요 (ex) example@example.com";
+        "* 올바른 이메일 주소 형식을 입력해주세요 (예: example@example.com)";
       emailError.classList.add("show");
     } else {
       emailError.classList.remove("show");
@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
       passwordError.classList.add("show");
     } else if (!passwordValid) {
       passwordError.textContent =
-        "* 비밀번호는 8자 이상, 20자 이하이며, 대문자, 소문자, 특수문자를 포함해야 합니다.";
+        "* 비밀번호는 8자 이상, 20자 이하이며, 대문자, 소문자, 숫자, 특수문자를 포함해야 합니다.";
       passwordError.classList.add("show");
     } else {
       passwordError.classList.remove("show");
@@ -63,20 +63,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 로그인 버튼 클릭 이벤트
   loginBtn.addEventListener("click", () => {
-    if (
-      emailInput.value === "test@example.com" &&
-      passwordInput.value === "Test@1234"
-    ) {
-      window.location.href = "../pages/post.html";
-    } else {
-      loginError.textContent = "* 아이디 또는 비밀번호를 확인해주세요";
+    const savedUser = JSON.parse(localStorage.getItem("user"));
+
+    if (!savedUser) {
+      loginError.textContent = "* 가입된 이메일이 없습니다.";
       loginError.classList.add("show");
+      return;
     }
+
+    if (emailInput.value !== savedUser.email) {
+      loginError.textContent = "* 해당 이메일로 가입된 계정이 없습니다.";
+      loginError.classList.add("show");
+      return;
+    }
+
+    if (passwordInput.value !== savedUser.password) {
+      loginError.textContent = "* 비밀번호가 일치하지 않습니다.";
+      loginError.classList.add("show");
+      return;
+    }
+
+    alert("로그인 성공!");
+    window.location.href = "post.html"; // 로그인 성공 후 이동
   });
 
   // 회원가입 페이지 이동
   signupBtn.addEventListener("click", (event) => {
     event.preventDefault();
-    window.location.href = "../pages/signup.html";
+    window.location.href = "signup.html";
   });
 });

@@ -1,21 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const profileInput = document.getElementById("profile-img");
   const profilePreview = document.getElementById("profile-preview-img");
-
-  // 프로필 사진 업로드 이벤트
-  profileInput.addEventListener("change", (event) => {
-    const file = event.target.files[0];
-
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        profilePreview.src = e.target.result;
-        profilePreview.style.display = "block";
-      };
-      reader.readAsDataURL(file);
-    }
-  });
-
   const emailInput = document.getElementById("email");
   const passwordInput = document.getElementById("password");
   const confirmPasswordInput = document.getElementById("confirm-password");
@@ -29,9 +14,21 @@ document.addEventListener("DOMContentLoaded", () => {
   );
   const nicknameError = document.querySelector(".nickname-error");
 
+  // 프로필 사진 업로드 이벤트
+  profileInput.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        profilePreview.src = e.target.result;
+        profilePreview.style.display = "block";
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
   function validateEmail(email) {
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailPattern.test(email);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
   function validatePassword(password) {
@@ -41,14 +38,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function validateNickname(nickname) {
-    return /^[^\s]{1,10}$/.test(nickname); // 닉네임은 10자 이내, 공백 없음
+    return /^[^\s]{1,10}$/.test(nickname);
   }
 
   function checkFormValidity() {
     let isValid = true;
 
     // 이메일 유효성 검사
-    if (emailInput.value.trim() === "") {
+    if (!emailInput.value.trim()) {
       emailError.textContent = "* 이메일을 입력해주세요.";
       emailError.classList.add("show");
       isValid = false;
@@ -62,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // 비밀번호 유효성 검사
-    if (passwordInput.value.trim() === "") {
+    if (!passwordInput.value.trim()) {
       passwordError.textContent = "* 비밀번호를 입력해주세요.";
       passwordError.classList.add("show");
       isValid = false;
@@ -76,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // 비밀번호 확인 검사
-    if (confirmPasswordInput.value.trim() === "") {
+    if (!confirmPasswordInput.value.trim()) {
       confirmPasswordError.textContent = "* 비밀번호를 한번 더 입력하세요.";
       confirmPasswordError.classList.add("show");
       isValid = false;
@@ -89,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // 닉네임 유효성 검사
-    if (nicknameInput.value.trim() === "") {
+    if (!nicknameInput.value.trim()) {
       nicknameError.textContent = "* 닉네임을 입력해주세요.";
       nicknameError.classList.add("show");
       isValid = false;
@@ -102,7 +99,6 @@ document.addEventListener("DOMContentLoaded", () => {
       nicknameError.classList.remove("show");
     }
 
-    // 모든 입력값이 유효하면 버튼 활성화
     signupBtn.disabled = !isValid;
     signupBtn.classList.toggle("active", isValid);
   }
@@ -112,8 +108,18 @@ document.addEventListener("DOMContentLoaded", () => {
   confirmPasswordInput.addEventListener("input", checkFormValidity);
   nicknameInput.addEventListener("input", checkFormValidity);
 
+  // 회원가입 완료 후 LocalStorage에 저장
   signupBtn.addEventListener("click", () => {
     if (!signupBtn.disabled) {
+      const userData = {
+        email: emailInput.value,
+        password: passwordInput.value, // 비밀번호 암호화 불가 (Vanilla JS에서는)
+        nickname: nicknameInput.value,
+        profileImage: profilePreview.src,
+      };
+
+      localStorage.setItem("user", JSON.stringify(userData));
+
       alert("회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.");
       window.location.href = "login.html";
     }
