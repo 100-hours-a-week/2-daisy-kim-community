@@ -1,0 +1,169 @@
+/* 전체 페이지 스타일 */
+body {
+  font-family: "Noto Sans KR", sans-serif;
+  background-color: #f8f9fa;
+  margin: 0;
+  padding: 0;
+}
+
+/* 헤더 */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  background-color: #e0e4ff;
+  border-bottom: 2px solid #7f6aee;
+}
+
+/* 게시판 컨테이너 */
+.board-container {
+  width: 60%;
+  margin: 20px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* 게시판 상단 */
+.board-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.board-header h2 {
+  font-size: 20px;
+}
+
+.bold-text {
+  font-weight: bold;
+}
+
+/* 게시글 작성 버튼 */
+#create-post-btn {
+  padding: 10px 15px;
+  background-color: #aca0eb;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#create-post-btn:hover {
+  background-color: #7f6aee;
+}
+
+/* 게시글 리스트 */
+.post-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 게시글 카드 */
+.post-card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 0.2s;
+}
+
+.post-card:hover {
+  transform: scale(1.02);
+}
+
+/* 게시글 제목 */
+.post-title {
+  font-size: 18px;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90%;
+}
+
+/* 게시글 정보 */
+.post-meta {
+  display: flex;
+  justify-content: space-between;
+  color: gray;
+  font-size: 14px;
+}
+
+/* 작성자 */
+.post-author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.post-author img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #ddd;
+}
+
+/* 좋아요, 댓글, 조회수 */
+.post-stats {
+  display: flex;
+  gap: 15px;
+}
+
+/* 공통 스타일 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Noto Sans KR", sans-serif;
+}
+
+/* 헤더 스타일 */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+  z-index: 1000;
+}
+
+/* 뒤로가기 버튼 */
+.back-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* 제목 스타일 */
+.title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* 프로필 이미지 */
+.profile-img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+body {
+  padding-top: 60px;
+}

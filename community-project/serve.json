@@ -1,6 +1,7 @@
 {
   "rewrites": [
     { "source": "/signup", "destination": "../pages/signup.html" },
-    { "source": "/login", "destination": "../pages/login.html" }
+    { "source": "/login", "destination": "../pages/login.html" },
+    { "source": "/post", "destination": "../pages/post.html" }
   ]
 }
