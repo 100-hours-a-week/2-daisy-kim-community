@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>회원가입</title>
+    <link rel="stylesheet" href="../styles/signup.css" />
+  </head>
+  <body>
+    <div class="signup-container">
+      <h1>회원가입</h1>
+
+      <div class="signup-content">
+        <!-- 프로필 사진 업로드 -->
+        <div class="profile-upload">
+          <input type="file" id="profile-img" accept="image/*" />
+          <label for="profile-img" class="profile-label">
+            <div id="profile-preview">
+              <img
+                id="profile-preview-img"
+                src="../assets/images/default-profile.png"
+                alt="프로필 미리보기"
+              />
+            </div>
+          </label>
+        </div>
+
+        <form class="signup-form">
+          <!-- 이메일 입력 -->
+          <div class="input-group">
+            <label for="email">이메일*</label>
+            <input type="email" id="email" placeholder="이메일을 입력하세요" />
+            <p class="helper-text email-error"></p>
+          </div>
+
+          <!-- 비밀번호 입력 -->
+          <div class="input-group">
+            <label for="password">비밀번호*</label>
+            <input
+              type="password"
+              id="password"
+              placeholder="비밀번호를 입력하세요"
+            />
+            <p class="helper-text password-error"></p>
+          </div>
+
+          <!-- 비밀번호 확인 -->
+          <div class="input-group">
+            <label for="confirm-password">비밀번호 확인*</label>
+            <input
+              type="password"
+              id="confirm-password"
+              placeholder="비밀번호를 한번 더 입력하세요"
+            />
+            <p class="helper-text confirm-password-error"></p>
+          </div>
+
+          <!-- 닉네임 -->
+          <div class="input-group">
+            <label for="nickname">닉네임*</label>
+            <input
+              type="text"
+              id="nickname"
+              placeholder="닉네임을 입력하세요"
+            />
+            <p class="helper-text nickname-error"></p>
+          </div>
+
+          <!-- 회원가입 버튼 -->
+          <button type="button" id="signup-btn" disabled>회원가입</button>
+
+          <!-- 로그인 페이지 이동 -->
+          <p class="login-link">
+            <a href="login.html">로그인하러 가기</a>
+          </p>
+        </form>
+      </div>
+    </div>
+
+    <script src="../scripts/signup.js"></script>
+  </body>
+</html>
