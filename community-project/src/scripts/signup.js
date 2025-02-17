@@ -15,16 +15,44 @@ document.addEventListener("DOMContentLoaded", () => {
   const nicknameError = document.querySelector(".nickname-error");
 
   // 프로필 사진 업로드 이벤트
-  profileInput.addEventListener("change", (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        profilePreview.src = e.target.result;
-        profilePreview.style.display = "block";
+  document.addEventListener("DOMContentLoaded", () => {
+    const profileInput = document.getElementById("profile-img");
+    const profilePreview = document.getElementById("profile-preview-img");
+    const nicknameInput = document.getElementById("nickname");
+    const signupBtn = document.getElementById("signup-btn");
+
+    // 프로필 사진 미리보기 기능
+    profileInput.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          profilePreview.src = e.target.result;
+          profilePreview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // 회원가입 버튼 클릭 이벤트
+    signupBtn.addEventListener("click", () => {
+      if (!nicknameInput.value.trim()) {
+        alert("닉네임을 입력해주세요!");
+        return;
+      }
+
+      // 회원 정보 저장 (닉네임 + 프로필 이미지)
+      const userData = {
+        nickname: nicknameInput.value.trim(),
+        profileImage:
+          profilePreview.src || "../assets/images/default-profile.jpeg",
       };
-      reader.readAsDataURL(file);
-    }
+
+      localStorage.setItem("userData", JSON.stringify(userData));
+
+      alert("회원가입이 완료되었습니다!");
+      window.location.href = "login.html";
+    });
   });
 
   function validateEmail(email) {

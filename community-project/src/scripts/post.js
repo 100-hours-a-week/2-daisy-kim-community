@@ -7,6 +7,19 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = "post-create.html";
   });
 
+  // LocalStorage에서 저장된 게시글 가져오기
+  function getStoredPost() {
+    const storedPost = localStorage.getItem("postData");
+    return storedPost ? JSON.parse(storedPost) : null;
+  }
+
+  // 숫자 단위 변환 함수 (1k, 10k, 100k)
+  function formatNumber(num) {
+    if (num >= 100000) return `${Math.floor(num / 1000)}k`;
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}k`;
+    return num;
+  }
+
   // 더미 게시글 데이터
   const dummyPosts = Array.from({ length: 30 }).map((_, i) => ({
     id: i + 1,
@@ -16,13 +29,22 @@ document.addEventListener("DOMContentLoaded", () => {
     views: Math.floor(Math.random() * 100000),
     author: `작성자 ${i + 1}`,
     date: "2021-01-01 00:00:00",
+    image: "../assets/images/default-profile.jpeg",
   }));
 
-  // 숫자 단위 변환 함수 (1k, 10k, 100k)
-  function formatNumber(num) {
-    if (num >= 100000) return `${Math.floor(num / 1000)}k`;
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}k`;
-    return num;
+  // 저장된 게시글이 있으면 최상단에 추가
+  const storedPost = getStoredPost();
+  if (storedPost) {
+    dummyPosts.unshift({
+      id: 0,
+      title: storedPost.title,
+      likes: 0,
+      comments: 0,
+      views: 0,
+      author: "익명",
+      date: storedPost.date,
+      image: storedPost.image,
+    });
   }
 
   // 게시글 렌더링 함수
@@ -31,20 +53,20 @@ document.addEventListener("DOMContentLoaded", () => {
       const postElement = document.createElement("div");
       postElement.classList.add("post-card");
       postElement.innerHTML = `
-          <div class="post-title">${post.title}</div>
-          <div class="post-meta">
-            <div class="post-stats">
-              <span>좋아요 ${formatNumber(post.likes)}</span>
-              <span>댓글 ${formatNumber(post.comments)}</span>
-              <span>조회수 ${formatNumber(post.views)}</span>
-            </div>
-            <span>${post.date}</span>
+        <div class="post-title">${post.title}</div>
+        <div class="post-meta">
+          <div class="post-stats">
+            <span>좋아요 ${formatNumber(post.likes)}</span>
+            <span>댓글 ${formatNumber(post.comments)}</span>
+            <span>조회수 ${formatNumber(post.views)}</span>
           </div>
-          <div class="post-author">
-            <img src="../assets/images/default-profile.jpeg" alt="프로필" />
-            <span>${post.author}</span>
-          </div>
-        `;
+          <span>${post.date}</span>
+        </div>
+        <div class="post-author">
+          <img src="${post.image}" alt="프로필" />
+          <span>${post.author}</span>
+        </div>
+      `;
 
       // 게시글 클릭 시 상세 페이지 이동
       postElement.addEventListener("click", () => {

@@ -1,26 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
   const titleInput = document.getElementById("title");
   const contentInput = document.getElementById("content");
-  const imageUpload = document.getElementById("image-upload");
-  const imagePreview = document.getElementById("image-preview");
+  const imageInput = document.getElementById("image-upload");
   const submitBtn = document.getElementById("submit-btn");
   const errorMessage = document.getElementById("error-message");
+  const imagePreview = document.getElementById("image-preview");
 
-  // 제목 입력 제한 (최대 26자)
-  titleInput.addEventListener("input", () => {
-    if (titleInput.value.length > 26) {
-      titleInput.value = titleInput.value.slice(0, 26);
-    }
-    validateForm();
-  });
-
-  // 이미지 업로드 미리보기
-  imageUpload.addEventListener("change", (event) => {
+  // 이미지 미리보기 기능
+  imageInput.addEventListener("change", (event) => {
     const file = event.target.files[0];
-
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = function (e) {
         imagePreview.src = e.target.result;
         imagePreview.style.display = "block";
       };
@@ -28,28 +19,42 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 제목과 내용 입력 여부 확인 후 버튼 활성화
-  function validateForm() {
-    if (titleInput.value.trim() !== "" && contentInput.value.trim() !== "") {
-      submitBtn.classList.add("active");
+  // 입력값 유효성 검사
+  function checkFormValidity() {
+    const isTitleValid = titleInput.value.trim() !== "";
+    const isContentValid = contentInput.value.trim() !== "";
+
+    if (isTitleValid && isContentValid) {
       submitBtn.disabled = false;
+      submitBtn.classList.add("active");
       errorMessage.style.display = "none";
     } else {
-      submitBtn.classList.remove("active");
       submitBtn.disabled = true;
+      submitBtn.classList.remove("active");
     }
   }
 
-  titleInput.addEventListener("input", validateForm);
-  contentInput.addEventListener("input", validateForm);
+  titleInput.addEventListener("input", checkFormValidity);
+  contentInput.addEventListener("input", checkFormValidity);
 
-  // 완료 버튼 클릭 시 유효성 검사
+  // 완료 버튼 클릭 이벤트
   submitBtn.addEventListener("click", () => {
-    if (titleInput.value.trim() === "" || contentInput.value.trim() === "") {
+    if (!titleInput.value.trim() || !contentInput.value.trim()) {
       errorMessage.style.display = "block";
-    } else {
-      alert("게시글이 작성되었습니다!");
-      window.location.href = "post.html"; // 게시판으로 이동
+      return;
     }
+
+    // LocalStorage에 데이터 저장
+    const postData = {
+      title: titleInput.value.trim(),
+      content: contentInput.value.trim(),
+      image: imagePreview.src || "../assets/images/default-profile.jpeg",
+      date: new Date().toISOString().slice(0, 19).replace("T", " "), // yyyy-mm-dd hh:mm:ss 형식
+    };
+
+    localStorage.setItem("postData", JSON.stringify(postData));
+
+    // 게시글 목록 페이지로 이동
+    window.location.href = "post.html";
   });
 });
