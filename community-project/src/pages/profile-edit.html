@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>회원정보수정</title>
+    <link rel="stylesheet" href="../styles/profile-edit.css" />
+  </head>
+  <body>
+    <div class="profile-edit-container">
+      <h1>회원정보수정</h1>
+
+      <!-- 프로필 이미지 변경 -->
+      <div class="profile-section">
+        <label for="profile-img">
+          <img
+            id="profile-preview-img"
+            src="../assets/images/default-profile.jpeg"
+            alt="프로필 이미지"
+          />
+          <div class="profile-overlay">변경</div>
+        </label>
+        <input type="file" id="profile-img" accept="image/*" hidden />
+      </div>
+
+      <!-- 이메일 & 닉네임 수정 -->
+      <div class="input-group">
+        <label for="email">이메일</label>
+        <p id="email">이메일을 불러오는 중...</p>
+
+        <label for="nickname">닉네임</label>
+        <input type="text" id="nickname" />
+        <p class="helper-text nickname-error"></p>
+      </div>
+
+      <!-- 버튼 영역 -->
+      <button id="update-btn" class="btn">수정하기</button>
+      <button id="delete-btn" class="btn secondary">회원 탈퇴</button>
+
+      <!-- 토스트 메시지 -->
+      <div id="toast" class="toast">수정 완료</div>
+    </div>
+
+    <script src="../scripts/profile-edit.js"></script>
+  </body>
+</html>
