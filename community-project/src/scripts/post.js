@@ -1,4 +1,34 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const response = await fetch("../components/header.html"); // 상대 경로 사용
+    const html = await response.text();
+    document.getElementById("header-container").innerHTML = html;
+
+    if (!document.querySelector('script[src="../components/header.js"]')) {
+      const script = document.createElement("script");
+      script.src = "../components/header.js"; // 상대 경로 사용
+      script.defer = true;
+      document.body.appendChild(script);
+    }
+
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
+    const scripts = tempDiv.querySelectorAll("script");
+
+    scripts.forEach((script) => {
+      const newScript = document.createElement("script");
+      if (script.src) {
+        newScript.src = script.src;
+        newScript.defer = true;
+      } else {
+        newScript.textContent = script.textContent;
+      }
+      document.body.appendChild(newScript);
+    });
+  } catch (error) {
+    console.error("헤더를 불러오는 중 오류 발생:", error);
+  }
+
   const postList = document.getElementById("post-list");
   const createPostBtn = document.getElementById("create-post-btn");
 
