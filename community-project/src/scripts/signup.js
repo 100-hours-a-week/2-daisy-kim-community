@@ -136,20 +136,40 @@ document.addEventListener("DOMContentLoaded", () => {
   confirmPasswordInput.addEventListener("input", checkFormValidity);
   nicknameInput.addEventListener("input", checkFormValidity);
 
-  // 회원가입 완료 후 LocalStorage에 저장
-  signupBtn.addEventListener("click", () => {
+  signupBtn.addEventListener("click", async () => {
     if (!signupBtn.disabled) {
       const userData = {
         email: emailInput.value,
-        password: passwordInput.value, // 비밀번호 암호화 불가 (Vanilla JS에서는)
+        password: passwordInput.value,
         nickname: nicknameInput.value,
-        profileImage: profilePreview.src,
+        profile_image:
+          profilePreview.src || "https://image.kr/default-profile.jpg",
       };
 
-      localStorage.setItem("user", JSON.stringify(userData));
+      try {
+        const response = await fetch("/users", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(userData),
+        });
 
-      alert("회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.");
-      window.location.href = "login.html";
+        const data = await response.json();
+
+        if (response.status === 201) {
+          alert("회원가입이 완료되었습니다!");
+          localStorage.setItem("user", JSON.stringify(data.data));
+          window.location.href = "login.html";
+        } else if (response.status === 400) {
+          alert("회원가입 실패: 잘못된 요청입니다.");
+        } else if (response.status === 500) {
+          alert("서버 오류가 발생했습니다. 다시 시도해주세요.");
+        }
+      } catch (error) {
+        console.error("회원가입 요청 실패:", error);
+        alert("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
+      }
     }
   });
 });
