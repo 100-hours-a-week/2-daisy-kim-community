@@ -37,12 +37,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.location.href = "post-create.html";
   });
 
-  // LocalStorage에서 저장된 게시글 가져오기
-  function getStoredPost() {
-    const storedPost = localStorage.getItem("postData");
-    return storedPost ? JSON.parse(storedPost) : null;
-  }
-
   // 숫자 단위 변환 함수 (1k, 10k, 100k)
   function formatNumber(num) {
     if (num >= 100000) return `${Math.floor(num / 1000)}k`;
@@ -50,38 +44,30 @@ document.addEventListener("DOMContentLoaded", async () => {
     return num;
   }
 
-  // 더미 게시글 데이터
-  let dummyPosts = Array.from({ length: 30 }).map((_, i) => ({
-    id: i + 1,
-    title: `제목 ${i + 1}`.slice(0, 26), // 제목 길이 제한
-    likes: Math.floor(Math.random() * 2000),
-    comments: Math.floor(Math.random() * 500),
-    views: Math.floor(Math.random() * 100000),
-    author: `작성자 ${i + 1}`,
-    date: "2021-01-01 00:00:00",
-    image: "../assets/images/default-profile.jpeg",
-  }));
+  // 게시글 목록 조회 API 연결
+  async function fetchPosts() {
+    try {
+      const response = await fetch("/posts");
 
-  // 저장된 게시글이 있으면 최상단에 추가 & 최신 좋아요, 댓글, 조회수 반영
-  const storedPost = getStoredPost();
-  if (storedPost) {
-    let updatedPost = {
-      id: 0,
-      title: storedPost.title,
-      likes: storedPost.likes || 0,
-      comments: storedPost.comments?.length || 0,
-      views: storedPost.views || 0,
-      author: storedPost.author || "익명",
-      date: storedPost.date,
-      image: storedPost.image || "../assets/images/default-profile.jpeg",
-    };
+      if (!response.ok) {
+        throw new Error(`HTTP 오류! 상태 코드: ${response.status}`);
+      }
 
-    // 기존 목록에서 해당 게시글 업데이트
-    let existingPostIndex = dummyPosts.findIndex((post) => post.id === 0);
-    if (existingPostIndex !== -1) {
-      dummyPosts[existingPostIndex] = updatedPost;
-    } else {
-      dummyPosts.unshift(updatedPost);
+      const result = await response.json();
+
+      if (response.status === 200) {
+        console.log("게시글 불러오기 성공:", result.data);
+        renderPosts(result.data);
+      } else if (response.status === 400) {
+        console.error("잘못된 요청:", result.message);
+        alert("잘못된 요청입니다.");
+      } else if (response.status === 500) {
+        console.error("서버 오류:", result.message);
+        alert("서버 오류로 인해 게시글을 불러올 수 없습니다.");
+      }
+    } catch (error) {
+      console.error("게시글 요청 중 오류 발생:", error);
+      alert("네트워크 오류가 발생했습니다.");
     }
   }
 
@@ -95,37 +81,37 @@ document.addEventListener("DOMContentLoaded", async () => {
         <div class="post-title">${post.title}</div>
         <div class="post-meta">
           <div class="post-stats">
-            <span>좋아요 ${formatNumber(post.likes)}</span>
-            <span>댓글 ${formatNumber(post.comments)}</span>
-            <span>조회수 ${formatNumber(post.views)}</span>
+            <span>좋아요 ${formatNumber(post.likeCount)}</span>
+            <span>댓글 ${formatNumber(post.commentCount)}</span>
+            <span>조회수 ${formatNumber(post.viewCount)}</span>
           </div>
-          <span>${post.date}</span>
+          <span>${new Date(post.createdAt).toLocaleDateString()}</span>
         </div>
         <div class="post-author">
-          <img src="${post.image}" alt="프로필" />
-          <span>${post.author}</span>
+          <img src="${post.author.profileImage}" alt="프로필" />
+          <span>${post.author.nickname}</span>
         </div>
       `;
 
       // 게시글 클릭 시 상세 페이지 이동
       postElement.addEventListener("click", () => {
-        window.location.href = `post-detail.html?id=${post.id}`;
+        window.location.href = `post-detail.html?id=${post.postId}`;
       });
 
       postList.appendChild(postElement);
     });
   }
 
-  // 초기 렌더링 (최신 데이터 반영)
-  renderPosts(dummyPosts);
+  // 초기 게시글 불러오기
+  await fetchPosts();
 
   // 인피니트 스크롤 구현
-  window.addEventListener("scroll", () => {
+  window.addEventListener("scroll", async () => {
     if (
       window.innerHeight + window.scrollY >=
       document.body.offsetHeight - 100
     ) {
-      renderPosts(dummyPosts.slice(0, 5));
+      await fetchPosts(); // 스크롤 시 추가 게시글 로드
     }
   });
 });
