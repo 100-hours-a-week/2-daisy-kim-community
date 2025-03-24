@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 🔥 입력값 변경 시 버튼 활성화
-  function checkFormValidity() {
+  function validateAndUpdateForm() {
     if (titleInput.value.trim() && contentInput.value.trim()) {
       updateBtn.disabled = false;
       updateBtn.classList.add("active");
@@ -62,8 +62,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  titleInput.addEventListener("input", checkFormValidity);
-  contentInput.addEventListener("input", checkFormValidity);
+  titleInput.addEventListener("input", validateAndUpdateForm);
+  contentInput.addEventListener("input", validateAndUpdateForm);
 
   // 🔥 이미지 업로드 미리보기
   imageUpload.addEventListener("change", (event) => {

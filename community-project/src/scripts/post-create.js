@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // 입력값 유효성 검사
-  function checkFormValidity() {
+  function validateAndUpdateForm() {
     const isTitleValid = titleInput.value.trim() !== "";
     const isContentValid = contentInput.value.trim() !== "";
 
@@ -34,8 +34,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  titleInput.addEventListener("input", checkFormValidity);
-  contentInput.addEventListener("input", checkFormValidity);
+  titleInput.addEventListener("input", validateAndUpdateForm);
+  contentInput.addEventListener("input", validateAndUpdateForm);
 
   // 완료 버튼 클릭 이벤트
   submitBtn.addEventListener("click", () => {

@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return passwordPattern.test(password);
   }
 
-  function checkFormValidity() {
+  function validateAndUpdateForm() {
     const emailValue = emailInput.value.trim();
     const passwordValue = passwordInput.value.trim();
 
@@ -56,8 +56,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  emailInput.addEventListener("input", checkFormValidity);
-  passwordInput.addEventListener("input", checkFormValidity);
+  emailInput.addEventListener("input", validateAndUpdateForm);
+  passwordInput.addEventListener("input", validateAndUpdateForm);
 
   loginBtn.addEventListener("click", async () => {
     const email = emailInput.value.trim();

@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return regex.test(password);
   }
 
-  function checkFormValidity() {
+  function validateAndUpdateForm() {
     const passwordValue = passwordInput.value.trim();
     const confirmPasswordValue = confirmPasswordInput.value.trim();
     let isValid = true;
@@ -52,8 +52,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 입력 필드 변화 감지
-  passwordInput.addEventListener("input", checkFormValidity);
-  confirmPasswordInput.addEventListener("input", checkFormValidity);
+  passwordInput.addEventListener("input", validateAndUpdateForm);
+  confirmPasswordInput.addEventListener("input", validateAndUpdateForm);
 
   // 비밀번호 변경 처리
   updateBtn.addEventListener("click", () => {

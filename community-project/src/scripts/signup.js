@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return /^[^\s]{1,10}$/.test(nickname);
   }
 
-  function checkFormValidity() {
+  function validateAndUpdateForm() {
     let isValid = true;
 
     // 이메일 유효성 검사
@@ -131,10 +131,10 @@ document.addEventListener("DOMContentLoaded", () => {
     signupBtn.classList.toggle("active", isValid);
   }
 
-  emailInput.addEventListener("input", checkFormValidity);
-  passwordInput.addEventListener("input", checkFormValidity);
-  confirmPasswordInput.addEventListener("input", checkFormValidity);
-  nicknameInput.addEventListener("input", checkFormValidity);
+  emailInput.addEventListener("input", validateAndUpdateForm);
+  passwordInput.addEventListener("input", validateAndUpdateForm);
+  confirmPasswordInput.addEventListener("input", validateAndUpdateForm);
+  nicknameInput.addEventListener("input", validateAndUpdateForm);
 
   signupBtn.addEventListener("click", async () => {
     if (!signupBtn.disabled) {
