@@ -1,4 +1,3 @@
-// /js/postDetail.js
 import { fetchPostDetails, fetchComments } from "./postApi.js";
 import { setupPostEventHandlers } from "./postEvents.js";
 
@@ -38,32 +37,23 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function renderComments(comments) {
     commentList.innerHTML = "";
+    const template = document.getElementById("comment-template");
+
     comments.forEach((comment) => {
-      const commentElement = document.createElement("div");
-      commentElement.classList.add("comment");
-      commentElement.innerHTML = `
-        <div class="comment-meta">
-          <img src="${
-            comment.author.profileImage
-          }" class="comment-author-img" />
-          <span class="comment-author">${comment.author.nickname}</span>
-          <span class="comment-date">${new Date(
-            comment.createdAt
-          ).toLocaleString()}</span>
-        </div>
-        <div class="comment-body">
-          <span class="comment-text">${comment.content}</span>
-        </div>
-        <div class="comment-actions">
-          <button class="edit-comment" data-id="${
-            comment.commentId
-          }">수정</button>
-          <button class="delete-comment" data-id="${
-            comment.commentId
-          }">삭제</button>
-        </div>
-      `;
-      commentList.appendChild(commentElement);
+      const clone = template.content.cloneNode(true);
+      clone.querySelector(".comment-author-img").src =
+        comment.author.profileImage;
+      clone.querySelector(".comment-author").textContent =
+        comment.author.nickname;
+      clone.querySelector(".comment-date").textContent = new Date(
+        comment.createdAt
+      ).toLocaleString();
+      clone.querySelector(".comment-text").textContent = comment.content;
+
+      clone.querySelector(".edit-comment").dataset.id = comment.commentId;
+      clone.querySelector(".delete-comment").dataset.id = comment.commentId;
+
+      commentList.appendChild(clone);
     });
   }
 
