@@ -1,3 +1,7 @@
+// /js/postDetail.js
+import { fetchPostDetails, fetchComments } from "./postApi.js";
+import { setupPostEventHandlers } from "./postEvents.js";
+
 document.addEventListener("DOMContentLoaded", async () => {
   const postTitle = document.getElementById("post-title");
   const postAuthor = document.getElementById("post-author");
@@ -26,86 +30,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // 숫자 단위 변환 함수 (1k, 10k, 100k)
   function formatNumber(num) {
     if (num >= 100000) return `${Math.floor(num / 1000)}k`;
     if (num >= 1000) return `${(num / 1000).toFixed(1)}k`;
     return num;
   }
 
-  // 🔥 게시글 상세 조회
-  async function fetchPostDetails() {
-    try {
-      const response = await fetch(`/posts/${postId}`);
-      const result = await response.json();
-
-      if (response.status === 200) {
-        const postData = result.data[0];
-
-        postTitle.innerText = postData.title || "제목 없음";
-        postAuthor.innerText = postData.author.nickname || "익명";
-        postDate.innerText = new Date(postData.created_at).toLocaleString();
-        postContent.innerText = postData.content || "내용이 없습니다.";
-        viewCount.innerText = `${formatNumber(postData.view_count)} 조회수`;
-        likeBtn.innerText = `${formatNumber(postData.like_count)} 좋아요수`;
-        commentCount.innerText = `${formatNumber(postData.comment_count)} 댓글`;
-
-        postAuthorImg.src =
-          postData.author.profile_image ||
-          "../assets/images/default-profile.jpeg";
-
-        if (postData.image) {
-          postImage.src = postData.image;
-          postImage.style.display = "block";
-        }
-
-        likeBtn.dataset.liked = postData.liked ? "true" : "false";
-        likeBtn.classList.toggle("liked", postData.liked);
-
-        fetchComments();
-      }
-    } catch (error) {
-      console.error("게시글 요청 중 오류 발생:", error);
-    }
-  }
-
-  // 🔥 좋아요 버튼 클릭 이벤트 리스너
-  likeBtn.addEventListener("click", async () => {
-    try {
-      const liked = likeBtn.dataset.liked === "true";
-      const response = await fetch(`/posts/${postId}/like`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ like: !liked }),
-      });
-
-      const result = await response.json();
-      if (response.status === 200) {
-        likeBtn.dataset.liked = (!liked).toString();
-        likeBtn.innerText = `${formatNumber(result.data.like_count)} 좋아요수`;
-        likeBtn.classList.toggle("liked", !liked);
-      }
-    } catch (error) {
-      console.error("좋아요 요청 중 오류 발생:", error);
-    }
-  });
-
-  // 🔥 댓글 목록 조회
-  async function fetchComments() {
-    try {
-      const response = await fetch(`/posts/${postId}/comments`);
-      const result = await response.json();
-
-      if (response.status === 200) renderComments(result.data);
-    } catch (error) {
-      console.error("댓글 요청 중 오류 발생:", error);
-    }
-  }
-
-  // 댓글 렌더링
   function renderComments(comments) {
     commentList.innerHTML = "";
     comments.forEach((comment) => {
@@ -137,89 +67,52 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // 🔥 댓글 등록 이벤트 리스너
-  commentSubmit.addEventListener("click", async () => {
-    const commentText = commentInput.value.trim();
-    if (!commentText) return;
+  async function fetchAndRenderPost() {
+    const { response, result } = await fetchPostDetails(postId);
+    if (response.status === 200) {
+      const postData = result.data[0];
+      postTitle.innerText = postData.title || "제목 없음";
+      postAuthor.innerText = postData.author.nickname || "익명";
+      postDate.innerText = new Date(postData.created_at).toLocaleString();
+      postContent.innerText = postData.content || "내용 없음";
+      viewCount.innerText = `${formatNumber(postData.view_count)} 조회수`;
+      likeBtn.innerText = `${formatNumber(postData.like_count)} 좋아요수`;
+      commentCount.innerText = `${formatNumber(postData.comment_count)} 댓글`;
+      postAuthorImg.src =
+        postData.author.profile_image ||
+        "../assets/images/default-profile.jpeg";
 
-    try {
-      const response = await fetch(`/posts/${postId}/comments`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ content: commentText }),
-      });
-
-      if (response.status === 201) fetchComments();
-    } catch (error) {
-      console.error("댓글 등록 중 오류 발생:", error);
-    }
-
-    commentInput.value = "";
-  });
-
-  // 🔥 댓글 수정 및 삭제 이벤트 리스너
-  commentList.addEventListener("click", async (event) => {
-    const commentId = event.target.dataset.id;
-    if (!commentId) return;
-
-    if (event.target.classList.contains("edit-comment")) {
-      const newText = prompt("수정할 내용을 입력하세요:");
-      if (!newText) return;
-
-      try {
-        await fetch(`/posts/${postId}/comments/${commentId}`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ content: newText }),
-        });
-        fetchComments();
-      } catch (error) {
-        console.error("댓글 수정 중 오류 발생:", error);
+      if (postData.image) {
+        postImage.src = postData.image;
+        postImage.style.display = "block";
       }
-    }
 
-    if (event.target.classList.contains("delete-comment")) {
-      const confirmDelete = confirm("정말 삭제하시겠습니까?");
-      if (!confirmDelete) return;
+      likeBtn.dataset.liked = postData.liked ? "true" : "false";
+      likeBtn.classList.toggle("liked", postData.liked);
 
-      try {
-        await fetch(`/posts/${postId}/comments/${commentId}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        fetchComments();
-      } catch (error) {
-        console.error("댓글 삭제 중 오류 발생:", error);
-      }
+      await fetchAndRenderComments();
     }
+  }
+
+  async function fetchAndRenderComments() {
+    const result = await fetchComments(postId);
+    if (result && result.data) renderComments(result.data);
+  }
+
+  setupPostEventHandlers({
+    postId,
+    token,
+    likeBtn,
+    commentInput,
+    commentSubmit,
+    commentList,
+    deleteModal,
+    confirmDelete,
+    editBtn,
+    fetchAndRenderPost,
+    fetchAndRenderComments,
+    formatNumber,
   });
 
-  // 🔥 게시글 삭제 이벤트 리스너
-  confirmDelete.addEventListener("click", async () => {
-    try {
-      await fetch(`/posts/${postId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      alert("게시글이 삭제되었습니다.");
-      window.location.href = "index.html";
-    } catch (error) {
-      console.error("게시글 삭제 중 오류 발생:", error);
-    }
-  });
-
-  // 🔥 게시글 수정 페이지 이동 이벤트 리스너
-  editBtn.addEventListener("click", () => {
-    window.location.href = `post-edit.html?id=${postId}`;
-  });
-
-  // 초기 데이터 불러오기
-  await fetchPostDetails();
+  await fetchAndRenderPost();
 });
