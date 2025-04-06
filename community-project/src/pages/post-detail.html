@@ -58,6 +58,24 @@
 
       <!-- 댓글 목록 -->
       <div id="comment-list"></div>
+
+      <!-- 댓글 템플릿 -->
+      <template id="comment-template">
+        <div class="comment">
+          <div class="comment-meta">
+            <img class="comment-author-img" src="" alt="프로필 이미지" />
+            <span class="comment-author"></span>
+            <span class="comment-date"></span>
+          </div>
+          <div class="comment-body">
+            <span class="comment-text"></span>
+          </div>
+          <div class="comment-actions">
+            <button class="edit-comment" data-id="">수정</button>
+            <button class="delete-comment" data-id="">삭제</button>
+          </div>
+        </div>
+      </template>
     </main>
 
     <!-- 삭제 모달 -->
@@ -69,6 +87,6 @@
       </div>
     </div>
 
-    <script src="../scripts/post-detail.js"></script>
+    <script src="../scripts/post-detail.js" type="module"></script>
   </body>
 </html>

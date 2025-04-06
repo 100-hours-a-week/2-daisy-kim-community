@@ -18,14 +18,13 @@ document.addEventListener("DOMContentLoaded", () => {
     return passwordPattern.test(password);
   }
 
-  function checkFormValidity() {
+  function validateAndUpdateForm() {
     const emailValue = emailInput.value.trim();
     const passwordValue = passwordInput.value.trim();
 
     let emailValid = validateEmail(emailValue);
     let passwordValid = validatePassword(passwordValue);
 
-    // 이메일 유효성 검사 메시지 표시
     if (emailValue === "") {
       emailError.textContent = "* 이메일을 입력해주세요";
       emailError.classList.add("show");
@@ -37,7 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
       emailError.classList.remove("show");
     }
 
-    // 비밀번호 유효성 검사 메시지 표시
     if (passwordValue === "") {
       passwordError.textContent = "* 비밀번호를 입력해주세요";
       passwordError.classList.add("show");
@@ -58,36 +56,55 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  emailInput.addEventListener("input", checkFormValidity);
-  passwordInput.addEventListener("input", checkFormValidity);
+  emailInput.addEventListener("input", validateAndUpdateForm);
+  passwordInput.addEventListener("input", validateAndUpdateForm);
 
-  // 로그인 버튼 클릭 이벤트
-  loginBtn.addEventListener("click", () => {
-    const savedUser = JSON.parse(localStorage.getItem("user"));
+  loginBtn.addEventListener("click", async () => {
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
 
-    if (!savedUser) {
-      loginError.textContent = "* 가입된 이메일이 없습니다.";
+    if (!validateEmail(email) || !validatePassword(password)) {
+      loginError.textContent = "* 올바른 이메일과 비밀번호를 입력해주세요.";
       loginError.classList.add("show");
       return;
     }
 
-    if (emailInput.value !== savedUser.email) {
-      loginError.textContent = "* 해당 이메일로 가입된 계정이 없습니다.";
-      loginError.classList.add("show");
-      return;
-    }
+    try {
+      const response = await fetch("/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (passwordInput.value !== savedUser.password) {
-      loginError.textContent = "* 비밀번호가 일치하지 않습니다.";
-      loginError.classList.add("show");
-      return;
-    }
+      const result = await response.json();
 
-    alert("로그인 성공!");
-    window.location.href = "post.html"; // 로그인 성공 후 이동
+      if (response.status === 200) {
+        // 로그인 성공 처리
+        localStorage.setItem("user_id", result.data.userId);
+        localStorage.setItem("token", result.data.token);
+
+        alert("로그인 성공!");
+        window.location.href = "post.html"; // 로그인 성공 후 페이지 이동
+      } else if (response.status === 400) {
+        loginError.textContent = "* 잘못된 요청입니다.";
+        loginError.classList.add("show");
+      } else if (response.status === 401) {
+        loginError.textContent = "* 이메일 또는 비밀번호가 일치하지 않습니다.";
+        loginError.classList.add("show");
+      } else if (response.status === 500) {
+        loginError.textContent =
+          "* 서버 오류가 발생했습니다. 다시 시도해주세요.";
+        loginError.classList.add("show");
+      }
+    } catch (error) {
+      console.error("로그인 요청 중 오류 발생:", error);
+      loginError.textContent = "* 네트워크 오류가 발생했습니다.";
+      loginError.classList.add("show");
+    }
   });
 
-  // 회원가입 페이지 이동
   signupBtn.addEventListener("click", (event) => {
     event.preventDefault();
     window.location.href = "signup.html";

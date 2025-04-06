@@ -1,4 +1,7 @@
-document.addEventListener("DOMContentLoaded", () => {
+import { fetchPostDetails, fetchComments } from "./postApi.js";
+import { setupPostEventHandlers } from "./postEvents.js";
+
+document.addEventListener("DOMContentLoaded", async () => {
   const postTitle = document.getElementById("post-title");
   const postAuthor = document.getElementById("post-author");
   const postDate = document.getElementById("post-date");
@@ -16,170 +19,90 @@ document.addEventListener("DOMContentLoaded", () => {
   const cancelDelete = document.getElementById("cancel-delete");
   const editBtn = document.getElementById("edit-btn");
 
-  let editingCommentIndex = null; // 수정 중인 댓글의 인덱스
+  const urlParams = new URLSearchParams(window.location.search);
+  const postId = urlParams.get("id");
+  const token = localStorage.getItem("token");
 
-  // LocalStorage에서 저장된 게시글 가져오기
-  function getStoredPost() {
-    const storedPost = localStorage.getItem("postData");
-    return storedPost ? JSON.parse(storedPost) : null;
+  if (!postId) {
+    alert("잘못된 접근입니다.");
+    window.location.href = "index.html";
+    return;
   }
 
-  let postData = getStoredPost();
-
-  if (postData) {
-    postTitle.innerText = postData.title || "제목 없음";
-    postAuthor.innerText = postData.author || "익명";
-    postDate.innerText = postData.date || "날짜 없음";
-    postContent.innerText = postData.content || "내용이 없습니다.";
-
-    // 조회수 증가 (클릭 시 +1)
-    postData.views = (postData.views || 0) + 1;
-    viewCount.innerText = `${formatNumber(postData.views)} 조회수`;
-    localStorage.setItem("postData", JSON.stringify(postData));
-
-    likeBtn.innerText = `${formatNumber(postData.likes || 0)} 좋아요수`;
-    commentCount.innerText = `${formatNumber(
-      postData.comments?.length || 0
-    )} 댓글`;
-
-    // 프로필 이미지 설정
-    postAuthorImg.src = postData.authorImg
-      ? postData.authorImg
-      : "../assets/images/default-profile.jpeg";
-
-    // 게시글 이미지가 있으면 표시
-    if (postData.image) {
-      postImage.src = postData.image;
-      postImage.style.display = "block";
-    }
-  }
-
-  // 수정 버튼 클릭 시 `post-edit.html`로 이동
-  editBtn.addEventListener("click", () => {
-    if (postData) {
-      localStorage.setItem("editPostData", JSON.stringify(postData));
-      window.location.href = "post-edit.html";
-    }
-  });
-
-  // 숫자 단위 변환 함수 (1k, 10k, 100k)
   function formatNumber(num) {
     if (num >= 100000) return `${Math.floor(num / 1000)}k`;
     if (num >= 1000) return `${(num / 1000).toFixed(1)}k`;
     return num;
   }
 
-  // 댓글 렌더링
-  function renderComments() {
+  function renderComments(comments) {
     commentList.innerHTML = "";
-    if (postData && postData.comments?.length > 0) {
-      postData.comments.forEach((comment, index) => {
-        const commentElement = document.createElement("div");
-        commentElement.classList.add("comment");
-        commentElement.innerHTML = `
-              <div class="comment-meta">
-                <span class="comment-author">${comment.author || "익명"}</span>
-                <span class="comment-date">${
-                  comment.date || "YYYY-MM-DD HH:mm:ss"
-                }</span>
-              </div>
-              <div class="comment-body">
-                <span class="comment-text">${comment.text}</span>
-              </div>
-              <div class="comment-actions">
-                <button class="edit-comment" data-index="${index}">수정</button>
-                <button class="delete-comment" data-index="${index}">삭제</button>
-              </div>
-            `;
-        commentList.appendChild(commentElement);
-      });
+    const template = document.getElementById("comment-template");
+
+    comments.forEach((comment) => {
+      const clone = template.content.cloneNode(true);
+      clone.querySelector(".comment-author-img").src =
+        comment.author.profileImage;
+      clone.querySelector(".comment-author").textContent =
+        comment.author.nickname;
+      clone.querySelector(".comment-date").textContent = new Date(
+        comment.createdAt
+      ).toLocaleString();
+      clone.querySelector(".comment-text").textContent = comment.content;
+
+      clone.querySelector(".edit-comment").dataset.id = comment.commentId;
+      clone.querySelector(".delete-comment").dataset.id = comment.commentId;
+
+      commentList.appendChild(clone);
+    });
+  }
+
+  async function fetchAndRenderPost() {
+    const { response, result } = await fetchPostDetails(postId);
+    if (response.status === 200) {
+      const postData = result.data[0];
+      postTitle.innerText = postData.title || "제목 없음";
+      postAuthor.innerText = postData.author.nickname || "익명";
+      postDate.innerText = new Date(postData.created_at).toLocaleString();
+      postContent.innerText = postData.content || "내용 없음";
+      viewCount.innerText = `${formatNumber(postData.view_count)} 조회수`;
+      likeBtn.innerText = `${formatNumber(postData.like_count)} 좋아요수`;
+      commentCount.innerText = `${formatNumber(postData.comment_count)} 댓글`;
+      postAuthorImg.src =
+        postData.author.profile_image ||
+        "../assets/images/default-profile.jpeg";
+
+      if (postData.image) {
+        postImage.src = postData.image;
+        postImage.style.display = "block";
+      }
+
+      likeBtn.dataset.liked = postData.liked ? "true" : "false";
+      likeBtn.classList.toggle("liked", postData.liked);
+
+      await fetchAndRenderComments();
     }
   }
 
-  renderComments();
+  async function fetchAndRenderComments() {
+    const result = await fetchComments(postId);
+    if (result && result.data) renderComments(result.data);
+  }
 
-  // 댓글 입력 시 버튼 활성화
-  commentInput.addEventListener("input", () => {
-    commentSubmit.disabled = !commentInput.value.trim();
-    commentSubmit.classList.toggle("active", commentInput.value.trim());
+  setupPostEventHandlers({
+    postId,
+    token,
+    likeBtn,
+    commentInput,
+    commentSubmit,
+    commentList,
+    deleteModal,
+    confirmDelete,
+    editBtn,
+    fetchAndRenderPost,
+    fetchAndRenderComments,
+    formatNumber,
   });
 
-  // 댓글 등록 및 수정 기능
-  commentSubmit.addEventListener("click", () => {
-    const commentText = commentInput.value.trim();
-    if (!commentText) return;
-
-    const now = new Date();
-    const formattedDate = now.toISOString().slice(0, 19).replace("T", " ");
-
-    if (editingCommentIndex !== null) {
-      // 기존 댓글 수정
-      postData.comments[editingCommentIndex].text = commentText;
-      editingCommentIndex = null;
-      commentSubmit.innerText = "댓글 등록"; // 버튼 원래대로 변경
-    } else {
-      // 새로운 댓글 등록
-      const newComment = {
-        text: commentText,
-        author: "익명",
-        date: formattedDate,
-      };
-      postData.comments = [...(postData.comments || []), newComment];
-    }
-
-    localStorage.setItem("postData", JSON.stringify(postData));
-
-    renderComments();
-
-    commentInput.value = "";
-    commentSubmit.disabled = true;
-    commentSubmit.classList.remove("active");
-  });
-
-  // 댓글 수정 및 삭제 이벤트 리스너
-  commentList.addEventListener("click", (event) => {
-    if (event.target.classList.contains("edit-comment")) {
-      // 수정 버튼 클릭 시
-      const index = event.target.getAttribute("data-index");
-      editingCommentIndex = index;
-      commentInput.value = postData.comments[index].text; // 기존 댓글 내용 가져오기
-      commentSubmit.innerText = "댓글 수정";
-      commentSubmit.classList.add("active");
-      commentSubmit.disabled = false;
-    } else if (event.target.classList.contains("delete-comment")) {
-      // 삭제 버튼 클릭 시 모달 띄우기
-      deleteModal.style.display = "flex";
-      editingCommentIndex = event.target.getAttribute("data-index");
-    }
-  });
-
-  // 삭제 모달 확인 버튼
-  confirmDelete.addEventListener("click", () => {
-    if (editingCommentIndex !== null) {
-      postData.comments.splice(editingCommentIndex, 1);
-      localStorage.setItem("postData", JSON.stringify(postData));
-      renderComments();
-      editingCommentIndex = null;
-    }
-    deleteModal.style.display = "none";
-  });
-
-  // 삭제 모달 취소 버튼
-  cancelDelete.addEventListener("click", () => {
-    deleteModal.style.display = "none";
-  });
-
-  // 좋아요 버튼 클릭 시 증가/감소
-  likeBtn.addEventListener("click", () => {
-    if (!postData.liked) {
-      postData.likes += 1;
-      likeBtn.classList.add("liked");
-    } else {
-      postData.likes -= 1;
-      likeBtn.classList.remove("liked");
-    }
-    postData.liked = !postData.liked;
-    likeBtn.innerText = `${formatNumber(postData.likes)} 좋아요수`;
-    localStorage.setItem("postData", JSON.stringify(postData));
-  });
+  await fetchAndRenderPost();
 });
